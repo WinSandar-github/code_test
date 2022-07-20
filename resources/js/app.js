@@ -40,12 +40,12 @@ const Toast = Swal.mixin({
   })
 window.Swal=Swal;
 window.Toast=Toast;
-import ImgComponent from './components/ImgpreviewComponent';
-import ProductComponent from './components/ProductComponent';
+import CreateInvoiceComponent from './components/CreateInvoiceComponent';
+import GetInvoiceComponent from './components/GetInvoiceComponent';
 Vue.component('pagination', require('laravel-vue-pagination'));
 const routes=[
-    { path: '/', component:ImgComponent},
-    { path: '/product', component: ProductComponent }
+    { path: '/', component:CreateInvoiceComponent},
+    { path: '/getInvoice/:id', component: GetInvoiceComponent }
   ]
   export const router = new VueRouter({
     base: '/',

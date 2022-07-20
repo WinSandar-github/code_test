@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class tbl_product extends Model
+class tbl_item extends Model
 {
     use HasFactory;
-    protected $fillable=['name','price'];
+    protected $fillable=['qty','description','price','amount','invoice_id'];
 }

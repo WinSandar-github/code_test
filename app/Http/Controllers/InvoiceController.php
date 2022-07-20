@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\tbl_product;
 
-class ProductController extends Controller
+use App\Models\tbl_invoice;
+use App\Models\tbl_item;
+use Illuminate\Support\Facades\DB;
+
+class InvoiceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,9 +17,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return tbl_product::when(request('search'),function($query){
-            $query->where('name','like','%'.request('search').'%');
-        })->orderBy('id','desc')->paginate(5);
+        return DB::table('tbl_invoices')->orderBy('id','desc')->paginate(5);
         
     }
 
@@ -38,11 +39,25 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'price' => 'required',
-        ]);
-        tbl_product::create($request->only('name','price'));
+        
+        $invoice=new tbl_invoice();
+        $invoice->table_no=$request->table_no;
+        $invoice->sub_total=$request->sub_total;
+        $invoice->tax=$request->tax;
+        $invoice->total=$request->total;
+        $invoice->save();
+        $invoice->receipt_no='00071004#'.$invoice->id;
+        $invoice->save();
+       
+        for ($i = 0; $i < count($request->tableRows); $i++) {
+            $item=new tbl_item();
+            $item->qty=$request->tableRows[$i]['qty'];
+            $item->description=$request->tableRows[$i]['description'];
+            $item->price=$request->tableRows[$i]['price'];
+            $item->amount=$request->tableRows[$i]['amount'];
+            $item->invoice_id=$invoice->id;
+            $item->save();
+        }
     }
 
     /**
@@ -53,7 +68,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
@@ -76,10 +91,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product=tbl_product::find($id);
-        $product->name=$request->name;
-        $product->price=$request->price;
-        $product->save();
+       
     }
 
     /**
@@ -88,9 +100,12 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    
+    public function getInvoice($id)
     {
-        $product=tbl_product::find($id);
-        $product->delete();
+        $invoice=tbl_invoice::with('item')
+                            ->where('tbl_invoices.id',$id)
+                            ->get();
+        return $invoice;
     }
 }
